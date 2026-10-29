@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico"/>
+    <title>Redirecting… | lty.ie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"/>
+    <link rel="stylesheet" href="/static/default.css"/>
+</head>
+<body>
+<div class="background-blur"></div>
+<main class="container">
+    <div class="card">
+        <h1>
+            <span class="glitch-wrap">
+                <span class="glitch-text gradient-text" data-text="lty.ie">lty.ie</span>
+            </span>
+        </h1>
+        <div class="loading-wrap">
+            <p class="loading-title">Redirecting you safely…</p>
+            <p class="loading-sub">Please wait a moment while we open your destination link.</p>
+            <div class="bar" aria-hidden="true"><span></span></div>
+            <div class="chip" aria-live="polite">
+                <span class="dot"></span>
+                <span>Preparing destination</span>
+            </div>
+            <div id="destination-url"></div>
+            <div class="actions">
+                <button class="btn" id="open-btn" type="button">Open now</button>
+                <button class="btn secondary" id="cancel-btn" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    const DESTINATION_URL = document.getElementById("destination-url");
+    const OPEN_BUTTON = document.getElementById("open-btn");
+    const CANCEL_BUTTON = document.getElementById("cancel-btn");
+    DESTINATION_URL.textContent = "{{ reference }}";
+    OPEN_BUTTON.addEventListener("click", () => { window.location.href = "{{ reference }}"; });
+    CANCEL_BUTTON.addEventListener("click", () => { window.location.href = "/"; });
+    setTimeout(() => { window.location.href = "{{ reference }}"; }, 2500);
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico"/>
+    <title>Redirecting… | lty.ie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="lty.ie — taking you to Leatyon Ltd at leatyon.org. IT Solutions across Ireland & UK"/>
+    <meta http-equiv="refresh" content="5;url=https://leatyon.org"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"/>
+    <link rel="stylesheet" href="/static/default.css"/>
+</head>
+<body class="page-index">
+<div class="index-bg">
+    <div class="index-bg__gradient"></div>
+    <div class="index-bg__blob index-bg__blob--1"></div>
+    <div class="index-bg__blob index-bg__blob--2"></div>
+    <div class="index-bg__blob index-bg__blob--3"></div>
+    <div class="index-bg__blob index-bg__blob--4"></div>
+</div>
+<main class="container">
+    <div class="card index-redirect">
+        <h1 class="index-redirect__logo">
+            <span class="index-redirect__logo-text">Leatyon Ltd</span>
+        </h1>
+        <p class="index-redirect__tagline">IT Solutions across Ireland & UK <span class="index-redirect__heart">&lt;3</span></p>
+        <p class="index-redirect__motto">Let's rewrite your future now!</p>
+        <p class="index-redirect__from"><span class="index-redirect__from-pill"><span class="index-redirect__from-source">lty.ie</span><span class="index-redirect__from-arrow">→</span><span class="index-redirect__from-target">leatyon.org</span></span></p>
+        <div class="index-redirect__progress">
+            <div class="index-redirect__bar" aria-hidden="true">
+                <span class="index-redirect__bar-fill" id="redirect-fill"></span>
+            </div>
+            <p class="index-redirect__countdown">Redirecting in <span id="redirect-countdown">5</span>s</p>
+        </div>
+        <div class="index-redirect__actions">
+            <a href="https://leatyon.org" class="btn index-redirect__btn" id="instant-ref">Go to leatyon.org</a>
+            <a href="/create" class="btn secondary index-redirect__link"><span class="index-redirect__link-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> <span>Create your link</span></a>
+        </div>
+    </div>
+</main>
+<script>
+    (function () {
+        const SECONDS = 5;
+        const REDIRECT_FILL = document.getElementById("redirect-fill");
+        const COUNTDOWN_BLOCK = document.getElementById("redirect-countdown");
+        const INSTANT_REF_BUTTON = document.getElementById("instant-ref");
+
+        INSTANT_REF_BUTTON.addEventListener("click", function (e) {
+            e.preventDefault();
+            window.location.href = "{{ reference }}";
+        });
+
+        var startTime = Date.now();
+        var durationTime = SECONDS * 1000;
+
+        function tick() {
+            var elapsedTime = Date.now() - startTime;
+            var timeLeft = Math.max(0, SECONDS - Math.ceil(elapsedTime / 1000));
+            COUNTDOWN_BLOCK.textContent = timeLeft;
+            if (REDIRECT_FILL) {
+                REDIRECT_FILL.style.transform = "scaleX(" + (1 - elapsedTime / durationTime) + ")";
+            }
+            if (timeLeft <= 0) {
+                window.location.href = "{{ reference }}";
+                return;
+            }
+            setTimeout(tick, 80);
+        }
+
+        COUNTDOWN_BLOCK.textContent = SECONDS;
+        if (REDIRECT_FILL) {
+            REDIRECT_FILL.style.transform = "scaleX(1)";
+        }
+        setTimeout(tick, 80);
+    })();
+</script>
+</body>
+</html>

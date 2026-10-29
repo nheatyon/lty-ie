@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="icon" type="image/x-icon" href="/static/favicon.ico"/>
+      <title>404 — Link Not Found | lty.ie</title>
+      <meta name="description" content="The short link you tried to open does not exist or has expired.">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="/static/default.css" />
+   </head>
+   <body>
+      <div class="background-blur"></div>
+      <main class="container">
+         <div class="card">
+            <h1>
+               <span class="glitch-wrap">
+                  <span class="glitch-text gradient-text" data-text="404">404</span>
+               </span>
+            </h1>
+            <p class="slogan" style="margin-top: 14px;">
+               Link not found
+            </p>
+            <p class="micro" style="margin-top: 10px; line-height: 1.6;">{{ message }}</p>
+            <form class="error-actions" action="/" method="GET" style="margin-top: 22px;">
+               <button type="submit" class="error-btn"><span class="error-btn-icon" aria-hidden="true">←</span><span class="error-btn-label">Back to lty.ie</span></button>
+            </form>
+         </div>
+      </main>
+   </body>
+</html>

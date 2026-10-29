@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico"/>
+    <title>Short Links | lty.ie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Create short, fast and reliable links with lty.ie"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"/>
+    <link rel="stylesheet" href="/static/default.css"/>
+</head>
+<body>
+<div class="background-blur"></div>
+<main class="container">
+    <div class="card">
+        <h1>
+            <span class="glitch-wrap">
+                <span class="glitch-text gradient-text" data-text="lty.ie">lty.ie</span>
+            </span>
+        </h1>
+        <p class="slogan">
+            Made in <strong>Ireland</strong> 🇮🇪 with
+            <span class="heart">❤</span>
+        </p>
+        <p class="byline">
+            A solution by
+            <a href="https://leatyon.org" target="_blank" rel="noopener noreferrer">
+                <strong>Leatyon Ltd.</strong>
+            </a>
+        </p>
+        <div class="card__slot">
+            <form class="shortener-form card__form" action="#" method="post" id="shortener-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <label class="shortener-form__label" for="shortener-url">Paste any URL — get a short link</label>
+                <div class="shortener-form__bar">
+                    <span class="shortener-form__icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </span>
+                    <input type="url" id="shortener-url" name="reference" class="shortener-form__input" placeholder="Paste your link here" required autocomplete="url"/>
+                    <button type="submit" class="shortener-form__submit">
+                        <span class="shortener-form__submit-text">Shorten</span>
+                        <span class="shortener-form__submit-arrow" aria-hidden="true">→</span>
+                    </button>
+                </div>
+                <p class="shortener-form__hint">Privacy-first · No tracking · Instant</p>
+                <p class="shortener-form__error" id="form-error" aria-live="polite" hidden></p>
+            </form>
+            <div class="card__result" id="result-view" aria-live="polite" hidden>
+                <div class="card__result-head">
+                    <span class="card__result-badge" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    </span>
+                    <span class="card__result-label">Link ready</span>
+                </div>
+                <div class="card__result-bar">
+                    <span class="card__result-link" id="result-link"></span>
+                    <button type="button" class="card__result-copy" id="result-copy-btn">
+                        <span class="card__result-copy-text">Copy link</span>
+                        <span class="card__result-copy-done" aria-hidden="true">Copied!</span>
+                    </button>
+                </div>
+                <div class="card__result-footer">
+                    <span class="card__result-countdown-pill">
+                        <span class="card__result-countdown-fill" id="result-countdown-fill"></span>
+                        <span class="card__result-countdown-text">Back in <span id="result-countdown">5</span>s</span>
+                    </span>
+                    <button type="button" class="card__result-another" id="result-another-btn">Create another</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    const FORM = document.getElementById("shortener-form");
+    const FORM_ERROR = document.getElementById("form-error");
+    const RESULT_VIEW = document.getElementById("result-view");
+    const RESULT_LINK = document.getElementById("result-link");
+    const RESULT_COPY_BUTTON = document.getElementById("result-copy-btn");
+    const RESULT_COPY_TEXT = RESULT_COPY_BUTTON.querySelector(".card__result-copy-text");
+    const RESULT_COPY_DONE = RESULT_COPY_BUTTON.querySelector(".card__result-copy-done");
+    const RESULT_COUNTDOWN = document.getElementById("result-countdown");
+    const RESULT_ANOTHER_BUTTON = document.getElementById("result-another-btn");
+    const RESET_SECONDS = 5;
+    let resetTimer = null;
+    FORM.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!FORM_ERROR.hidden) {
+            FORM_ERROR.hidden = true;
+            FORM_ERROR.textContent = "";
+        }
+        const REFERENCE = FORM.querySelector("input[name='reference']").value;
+        const RESPONSE = await fetch("/add_redirect", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token() }}",
+            },
+            body: JSON.stringify({ reference: REFERENCE })
+        });
+        const DATA = await RESPONSE.json();
+        if (!RESPONSE.ok) {
+            FORM_ERROR.textContent = DATA.message || "Something went wrong.";
+            FORM_ERROR.hidden = false;
+            setTimeout(() => {
+                FORM_ERROR.hidden = true;
+                FORM_ERROR.textContent = "";
+            }, 5000);
+        } else {
+            var shortUrl = DATA.assigned_tag && DATA.assigned_tag.startsWith("http") ? DATA.assigned_tag : (window.location.origin + "/" + DATA.assigned_tag);
+            showResultInCard(shortUrl);
+        }
+    });
+    
+    function showResultInCard(shortLink) {
+        RESULT_LINK.textContent = shortLink;
+        FORM.classList.add("card__form--hidden");
+        RESULT_VIEW.hidden = false;
+        RESULT_VIEW.classList.add("card__result--visible");
+        if (resetTimer) clearInterval(resetTimer);
+        var countdownFill = document.getElementById("result-countdown-fill");
+        if (countdownFill) countdownFill.style.transform = "scaleX(1)";
+        var start = Date.now();
+        var duration = RESET_SECONDS * 1000;
+        function tick() {
+            var elapsed = Date.now() - start;
+            var left = Math.max(0, RESET_SECONDS - Math.floor(elapsed / 1000));
+            RESULT_COUNTDOWN.textContent = left;
+            if (countdownFill) countdownFill.style.transform = "scaleX(1 - elapsed / duration)";
+            if (left <= 0) {
+                resetTimer = null;
+                resetToForm();
+                return;
+            }
+            resetTimer = setTimeout(tick, 100);
+        }
+        RESULT_COUNTDOWN.textContent = RESET_SECONDS;
+        resetTimer = setTimeout(tick, 100);
+    }
+
+    function resetToForm() {
+        RESULT_VIEW.classList.remove("card__result--visible");
+        RESULT_VIEW.hidden = true;
+        FORM.classList.remove("card__form--hidden");
+        if (resetTimer) {
+            clearTimeout(resetTimer);
+            resetTimer = null;
+        }
+    }
+
+    RESULT_COPY_BUTTON.addEventListener("click", () => {
+        navigator.clipboard.writeText(RESULT_LINK.textContent);
+        RESULT_COPY_BUTTON.classList.add("card__result-copy--done");
+        RESULT_COPY_TEXT.setAttribute("aria-hidden", "true");
+        RESULT_COPY_DONE.setAttribute("aria-hidden", "false");
+        setTimeout(() => {
+            RESULT_COPY_BUTTON.classList.remove("card__result-copy--done");
+            RESULT_COPY_TEXT.setAttribute("aria-hidden", "false");
+            RESULT_COPY_DONE.setAttribute("aria-hidden", "true");
+        }, 2000);
+    });
+
+    RESULT_ANOTHER_BUTTON.addEventListener("click", () => resetToForm());
+</script>
+</body>
+</html>
